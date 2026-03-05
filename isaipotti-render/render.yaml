@@ -1,0 +1,43 @@
+# render.yaml
+# Render deployment configuration for IsaiPotti
+# Docs: https://render.com/docs/infrastructure-as-code
+
+services:
+  - type: web
+    name: isaipotti
+    runtime: node
+    region: singapore  # closest to Chennai — change to: oregon, frankfurt, ohio, virginia
+    plan: free          # change to 'starter' ($7/mo) for persistent disk + no sleep
+    buildCommand: apt-get install -y ffmpeg && npm install
+    startCommand: npm start
+    healthCheckPath: /api/health
+
+    # Environment variables — set these in Render Dashboard > Environment
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: JWT_SECRET
+        generateValue: true   # Render auto-generates a secure random value
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: ADMIN_USERNAME
+        value: rohit           # Change this in Render dashboard
+      - key: ADMIN_PASSWORD
+        value: changeme123     # CHANGE THIS in Render dashboard before deploying!
+      - key: ADMIN_DISPLAY_NAME
+        value: Rohit
+      - key: MAX_AUDIO_SIZE_MB
+        value: 500
+      - key: MAX_COVER_SIZE_MB
+        value: 10
+      - key: CORS_ORIGIN
+        value: "*"             # Lock this down to your frontend URL after testing
+
+    # Persistent disk — keeps your music + database across deploys
+    # NOTE: Requires paid plan (Starter $7/mo). Free tier loses files on redeploy.
+    # disk:
+    #   name: isaipotti-storage
+    #   mountPath: /var/data
+    #   sizeGB: 50
